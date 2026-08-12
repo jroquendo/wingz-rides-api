@@ -60,6 +60,19 @@ password at `/api/auth/token/`, then send it with requests:
 Authorization: Token <token>
 ```
 
+### Ride list response
+
+Each item returned by `/api/rides/` includes:
+
+- `id_rider` and `id_driver` for stable relationship identifiers
+- nested `rider` and `driver` details
+- `todays_ride_events`, containing only events created during the previous 24 hours
+
+The list queryset joins rider and driver data with `select_related` and loads the filtered event
+collection with a single `Prefetch`. Old events are filtered by PostgreSQL and never loaded into
+application memory. The unpaginated endpoint therefore uses two database queries regardless of
+the number of rides returned.
+
 ## Development checks
 
 ```bash
