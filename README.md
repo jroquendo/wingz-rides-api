@@ -44,6 +44,22 @@ python manage.py migrate
 Foreign keys use Django-friendly attributes while retaining the assessment's database column
 names: `id_rider`, `id_driver`, and `id_ride`.
 
+## API access
+
+The CRUD API is available under `/api/`:
+
+- `/api/users/`
+- `/api/rides/`
+- `/api/ride-events/`
+
+All three resources support list, retrieve, create, update, and delete operations. Only an
+authenticated user whose `role` is `admin` may access them. Obtain a token with a username and
+password at `/api/auth/token/`, then send it with requests:
+
+```text
+Authorization: Token <token>
+```
+
 ## Development checks
 
 ```bash
