@@ -4,6 +4,19 @@ from rest_framework import serializers
 from rides.models import Ride, RideEvent, User
 
 
+class RelatedUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "id_user",
+            "role",
+            "first_name",
+            "last_name",
+            "email",
+            "phone_number",
+        )
+
+
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         required=False,
@@ -98,3 +111,16 @@ class RideEventSerializer(serializers.ModelSerializer):
         model = RideEvent
         fields = ("id_ride_event", "id_ride", "description", "created_at")
         read_only_fields = ("id_ride_event",)
+
+
+class RideListSerializer(RideSerializer):
+    rider = RelatedUserSerializer(read_only=True)
+    driver = RelatedUserSerializer(read_only=True)
+    todays_ride_events = RideEventSerializer(many=True, read_only=True)
+
+    class Meta(RideSerializer.Meta):
+        fields = RideSerializer.Meta.fields + (
+            "rider",
+            "driver",
+            "todays_ride_events",
+        )
