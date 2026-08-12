@@ -2,9 +2,13 @@ from datetime import timedelta
 
 from django.db.models import Prefetch
 from django.utils import timezone
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 
+from rides.filters import RideFilter
 from rides.models import Ride, RideEvent, User
+from rides.ordering import StableRideOrderingFilter
+from rides.pagination import RidePagination
 from rides.permissions import HasAdminRole
 from rides.serializers import (
     RideEventSerializer,
@@ -24,6 +28,9 @@ class RideViewSet(viewsets.ModelViewSet):
     queryset = Ride.objects.select_related("rider", "driver")
     serializer_class = RideSerializer
     permission_classes = (HasAdminRole,)
+    pagination_class = RidePagination
+    filter_backends = (DjangoFilterBackend, StableRideOrderingFilter)
+    filterset_class = RideFilter
 
     def get_queryset(self):
         queryset = super().get_queryset()
