@@ -2,11 +2,12 @@
 
 A Django REST Framework API for the Wingz Software Engineer assessment.
 
-## Phase 1 status
+## Current status
 
 The repository currently contains the project foundation: Django and Django REST Framework,
 environment-based settings, PostgreSQL through Docker Compose, and the initial quality tooling.
-The assessment models and API endpoints will be added in subsequent phases.
+The custom user, ride, and ride-event models are also in place. API endpoints will be added in
+subsequent phases.
 
 ## Prerequisites
 
@@ -28,7 +29,20 @@ docker compose up -d db
 python manage.py check
 ```
 
-Database migrations will be introduced with the custom user and ride-domain models in Phase 2.
+Apply the database migrations after starting PostgreSQL:
+
+```bash
+python manage.py migrate
+```
+
+## Data model
+
+- `User` extends Django authentication with the required role and phone number fields.
+- `Ride` links a rider and driver and stores status, pickup/dropoff coordinates, and pickup time.
+- `RideEvent` records timestamped events for a ride.
+
+Foreign keys use Django-friendly attributes while retaining the assessment's database column
+names: `id_rider`, `id_driver`, and `id_ride`.
 
 ## Development checks
 
