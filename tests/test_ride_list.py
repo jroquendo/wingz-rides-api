@@ -75,8 +75,8 @@ def test_ride_list_includes_related_users_and_only_recent_events(
     response = ride_list_client.get(reverse("ride-list"))
 
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 1
-    ride_data = response.data[0]
+    assert response.data["count"] == 1
+    ride_data = response.data["results"][0]
     assert ride_data["id_ride"] == ride.id_ride
     assert ride_data["id_rider"] == ride.rider_id
     assert ride_data["id_driver"] == ride.driver_id
@@ -105,7 +105,7 @@ def test_ride_list_includes_related_users_and_only_recent_events(
 
 
 @pytest.mark.django_db
-def test_ride_list_uses_two_queries(
+def test_paginated_ride_list_uses_three_queries(
     ride_list_client,
     ride_with_events,
     django_assert_num_queries,
@@ -127,11 +127,11 @@ def test_ride_list_uses_two_queries(
         created_at=timezone.now() - timedelta(minutes=30),
     )
 
-    with django_assert_num_queries(2):
+    with django_assert_num_queries(3):
         response = ride_list_client.get(reverse("ride-list"))
 
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 2
+    assert response.data["count"] == 2
 
 
 @pytest.mark.django_db

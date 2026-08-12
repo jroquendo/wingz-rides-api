@@ -68,10 +68,32 @@ Each item returned by `/api/rides/` includes:
 - nested `rider` and `driver` details
 - `todays_ride_events`, containing only events created during the previous 24 hours
 
+The endpoint uses page-number pagination with 20 rides per page. A client can request up to 100
+rides using `page_size`. For example:
+
+```text
+/api/rides/?page=2&page_size=50
+```
+
+The list supports the following query parameters:
+
+- `status`: exact Ride status, such as `pickup`
+- `rider_email`: exact rider email
+- `ordering`: `pickup_time` or `-pickup_time`
+
+Filters and ordering can be combined in a single request:
+
+```text
+/api/rides/?status=pickup&rider_email=rider@example.com&ordering=-pickup_time
+```
+
+Pickup-time ordering always adds `id_ride` as a stable tie-breaker so records with matching pickup
+times do not move between pages. Unsupported ordering values return a clear `400 Bad Request`.
+
 The list queryset joins rider and driver data with `select_related` and loads the filtered event
 collection with a single `Prefetch`. Old events are filtered by PostgreSQL and never loaded into
-application memory. The unpaginated endpoint therefore uses two database queries regardless of
-the number of rides returned.
+application memory. A paginated response uses three database queries: one count query, one query
+for the current page of rides and related users, and one query for recent RideEvents.
 
 ## Development checks
 
