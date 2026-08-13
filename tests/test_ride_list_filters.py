@@ -161,7 +161,9 @@ def test_ride_list_rejects_unsupported_ordering(filtered_ride_list):
     response = client.get(reverse("ride-list"), {"ordering": "status"})
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.data["ordering"] == "Ordering must be either 'pickup_time' or '-pickup_time'."
+    assert response.data["ordering"] == (
+        "Ordering must be 'pickup_time', '-pickup_time', or 'distance'."
+    )
 
 
 @pytest.mark.django_db

@@ -79,7 +79,7 @@ The list supports the following query parameters:
 
 - `status`: exact Ride status, such as `pickup`
 - `rider_email`: exact rider email
-- `ordering`: `pickup_time` or `-pickup_time`
+- `ordering`: `pickup_time`, `-pickup_time`, or `distance`
 
 Filters and ordering can be combined in a single request:
 
@@ -89,6 +89,20 @@ Filters and ordering can be combined in a single request:
 
 Pickup-time ordering always adds `id_ride` as a stable tie-breaker so records with matching pickup
 times do not move between pages. Unsupported ordering values return a clear `400 Bad Request`.
+
+Distance ordering requires a pickup GPS location:
+
+```text
+/api/rides/?ordering=distance&pickup_latitude=14.5995&pickup_longitude=120.9842
+```
+
+Both coordinates are required and must be within valid latitude and longitude ranges. Distance is
+calculated entirely by PostgreSQL. A GiST expression index on
+`ll_to_earth(pickup_latitude, pickup_longitude)` supports K-nearest-neighbor ordering through the
+`cube` `<->` operator, so PostgreSQL can retrieve the closest rides without calculating and sorting
+the full Ride table in application code. `id_ride` remains the stable tie-breaker.
+The database account applying migrations must be allowed to install the `cube` and
+`earthdistance` extensions.
 
 The list queryset joins rider and driver data with `select_related` and loads the filtered event
 collection with a single `Prefetch`. Old events are filtered by PostgreSQL and never loaded into
