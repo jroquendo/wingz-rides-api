@@ -117,6 +117,11 @@ ruff check .
 ruff format --check .
 ```
 
+The test suite covers model constraints, complete CRUD workflows, admin-role authorization,
+authentication, filtering, both ordering modes, pagination boundaries, the exact 24-hour event
+cutoff, stable ordering between pages, and fixed SQL-query budgets. PostgreSQL-specific tests also
+verify that nearest-pickup ordering uses the GiST index in the generated query plan.
+
 ## Configuration
 
 Local configuration is read from `.env`. The committed `.env.example` documents every required
