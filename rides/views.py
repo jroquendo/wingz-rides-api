@@ -1,9 +1,11 @@
 from datetime import timedelta
 
 from django.db.models import Prefetch
+from django.db.models.deletion import ProtectedError
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets
+from rest_framework import status, viewsets
+from rest_framework.response import Response
 
 from rides.filters import RideFilter
 from rides.models import Ride, RideEvent, User
@@ -22,6 +24,22 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (HasAdminRole,)
+
+    def destroy(self, request, *args, **kwargs):
+        user = self.get_object()
+        try:
+            user.delete()
+        except ProtectedError:
+            return Response(
+                {
+                    "detail": (
+                        "This user cannot be deleted because they are assigned "
+                        "to one or more rides."
+                    )
+                },
+                status=status.HTTP_409_CONFLICT,
+            )
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class RideViewSet(viewsets.ModelViewSet):
