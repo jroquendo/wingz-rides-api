@@ -122,6 +122,9 @@ authentication, filtering, both ordering modes, pagination boundaries, the exact
 cutoff, stable ordering between pages, and fixed SQL-query budgets. PostgreSQL-specific tests also
 verify that nearest-pickup ordering uses the GiST index in the generated query plan.
 
+API validation rejects missing user passwords, invalid page sizes, and non-finite GPS coordinates.
+Deleting a rider or driver assigned to a Ride returns `409 Conflict` instead of a server error.
+
 ## Configuration
 
 Local configuration is read from `.env`. The committed `.env.example` documents every required

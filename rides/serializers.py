@@ -1,4 +1,5 @@
-from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.password_validation import validate_password as django_validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 
 from rides.models import Ride, RideEvent, User
@@ -21,7 +22,6 @@ class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         required=False,
         write_only=True,
-        validators=[validate_password],
     )
 
     class Meta:
@@ -39,13 +39,28 @@ class UserSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("id_user",)
 
+    def validate(self, attrs):
+        password = attrs.get("password")
+        if self.instance is None and not password:
+            raise serializers.ValidationError({"password": "This field is required."})
+
+        if password:
+            password_user = User(
+                **{
+                    field: attrs.get(field, getattr(self.instance, field, ""))
+                    for field in ("username", "first_name", "last_name", "email")
+                }
+            )
+            try:
+                django_validate_password(password, user=password_user)
+            except DjangoValidationError as error:
+                raise serializers.ValidationError({"password": error.messages}) from error
+        return attrs
+
     def create(self, validated_data):
         password = validated_data.pop("password", None)
         user = User(**validated_data)
-        if password:
-            user.set_password(password)
-        else:
-            user.set_unusable_password()
+        user.set_password(password)
         user.save()
         return user
 

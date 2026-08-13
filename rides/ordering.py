@@ -1,3 +1,5 @@
+import math
+
 from django.db.models import FloatField
 from django.db.models.expressions import RawSQL
 from rest_framework.exceptions import ValidationError
@@ -81,6 +83,8 @@ class StableRideOrderingFilter(OrderingFilter):
         except (TypeError, ValueError) as error:
             raise ValidationError({parameter: "A numeric value is required."}) from error
 
+        if not math.isfinite(coordinate):
+            raise ValidationError({parameter: "A finite numeric value is required."})
         if not minimum <= coordinate <= maximum:
             raise ValidationError({parameter: f"Value must be between {minimum} and {maximum}."})
         return coordinate
