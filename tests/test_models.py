@@ -57,6 +57,19 @@ def test_user_uses_assessment_primary_key_and_role():
 
 
 @pytest.mark.django_db
+def test_create_superuser_assigns_admin_role():
+    user = User.objects.create_superuser(
+        username="site-admin",
+        email="site-admin@example.com",
+        password="test-password",
+    )
+
+    assert user.role == User.Role.ADMIN
+    assert user.is_staff
+    assert user.is_superuser
+
+
+@pytest.mark.django_db
 def test_ride_links_rider_and_driver(ride, rider, driver):
     assert ride.rider == rider
     assert ride.driver == driver

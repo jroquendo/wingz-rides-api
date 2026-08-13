@@ -1,6 +1,15 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import UserManager as DjangoUserManager
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
+
+class UserManager(DjangoUserManager):
+    def create_superuser(self, username, email=None, password=None, **extra_fields):
+        extra_fields.setdefault("role", "admin")
+        if extra_fields.get("role") != "admin":
+            raise ValueError("Superusers must have the admin role.")
+        return super().create_superuser(username, email, password, **extra_fields)
 
 
 class User(AbstractUser):
@@ -13,6 +22,8 @@ class User(AbstractUser):
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.RIDER)
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=30, blank=True)
+
+    objects = UserManager()
 
     class Meta:
         db_table = "user"
