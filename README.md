@@ -1,5 +1,7 @@
 # Wingz Rides API
 
+[![CI](https://github.com/jroquendo/wingz-rides-api/actions/workflows/ci.yml/badge.svg)](https://github.com/jroquendo/wingz-rides-api/actions/workflows/ci.yml)
+
 A Django REST Framework API for the Wingz Software Engineer assessment.
 
 ## Current status
@@ -137,6 +139,10 @@ pytest
 ruff check .
 ruff format --check .
 ```
+
+GitHub Actions runs these checks for every pull request targeting `main` and every push to `main`.
+The workflow uses PostgreSQL 17, applies all migrations, checks for uncommitted model changes, and
+runs the complete test suite against the same database engine used for local development.
 
 The test suite covers model constraints, complete CRUD workflows, admin-role authorization,
 authentication, filtering, both ordering modes, pagination boundaries, the exact 24-hour event
